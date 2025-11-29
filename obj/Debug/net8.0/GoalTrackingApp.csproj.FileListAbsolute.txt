@@ -1,0 +1,15 @@
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\bin\Debug\net8.0\GoalTrackingApp.exe
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\bin\Debug\net8.0\GoalTrackingApp.deps.json
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\bin\Debug\net8.0\GoalTrackingApp.runtimeconfig.json
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\bin\Debug\net8.0\GoalTrackingApp.dll
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\bin\Debug\net8.0\GoalTrackingApp.pdb
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\GoalTrackingApp.GeneratedMSBuildEditorConfig.editorconfig
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\GoalTrackingApp.AssemblyInfoInputs.cache
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\GoalTrackingApp.AssemblyInfo.cs
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\GoalTrackingApp.csproj.CoreCompileInputs.cache
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\GoalTrackingApp.sourcelink.json
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\GoalTrackingApp.dll
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\refint\GoalTrackingApp.dll
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\GoalTrackingApp.pdb
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\GoalTrackingApp.genruntimeconfig.cache
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\ref\GoalTrackingApp.dll
