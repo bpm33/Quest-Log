@@ -15,7 +15,7 @@ namespace GoalTrackingApp
         public int EntryID { get; set; }//primary key set by database
         public DateTime DateLogged { get; set; }
         public decimal ValueLogged { get; set; }
-        public string Notes { get; set; }
+        public string Notes { get; set; } = null!;
 
         //constructor
         public ProgressEntry(decimal valueLogged, string notes = "")
@@ -24,6 +24,9 @@ namespace GoalTrackingApp
             this.ValueLogged = valueLogged;
             this.Notes = notes;
         }
+
+        //parameterless constructor for database loading
+        public ProgressEntry() {}
 
         //methods
         public override string ToString()

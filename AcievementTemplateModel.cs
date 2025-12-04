@@ -12,9 +12,9 @@ namespace GoalTrackingApp
     {
         //properties
         public int AchievementID { get; set; } //primary key
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string UnlockCondition { get; set; } //rules for unlocking
+        public string Name { get; set; } = null!;
+        public string Description { get; set; } = null!;
+        public string UnlockCondition { get; set; } = null!; //rules for unlocking
         public bool IsRepeatable { get; set; }
 
         //constructor
@@ -25,6 +25,9 @@ namespace GoalTrackingApp
             this.UnlockCondition = unlockCondition;
             this.IsRepeatable = isRepeatable;
         }
+
+        //parameterless constructor for data retrieval
+        public AchievementTemplateModel() { }
 
         //methods
         public override string ToString()

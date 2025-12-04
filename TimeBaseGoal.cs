@@ -27,6 +27,9 @@ namespace GoalTrackingApp
             this.RequiredFrequency = requiredFrequency;
         }
 
+        //parameterless constructor for database loading
+        public TimeBasedGoal() : base() {}
+
         //streak calculation helper method
         private int CalculateCurrentStreak()
         {

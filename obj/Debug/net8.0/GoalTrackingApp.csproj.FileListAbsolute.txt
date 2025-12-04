@@ -13,3 +13,10 @@ D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming
 D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\GoalTrackingApp.pdb
 D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\GoalTrackingApp.genruntimeconfig.cache
 D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\ref\GoalTrackingApp.dll
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\bin\Debug\net8.0\System.Data.SQLite.dll
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\bin\Debug\net8.0\runtimes\linux-x64\native\SQLite.Interop.dll
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\bin\Debug\net8.0\runtimes\osx-x64\native\SQLite.Interop.dll
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\bin\Debug\net8.0\runtimes\win-x64\native\SQLite.Interop.dll
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\bin\Debug\net8.0\runtimes\win-x86\native\SQLite.Interop.dll
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\GoalTrackingApp.csproj.AssemblyReference.cache
+D:\OneDrive - ECPI University\School\SDC320 Advanced Object-Oriented Programming using C#\Project\GoalTrackingApp\obj\Debug\net8.0\GoalTrac.3BE0EA3E.Up2Date

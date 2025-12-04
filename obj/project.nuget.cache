@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "faoZZh50TKs=",
+  "dgSpecHash": "jggN2XTPO90=",
   "success": true,
   "projectFilePath": "D:\\OneDrive - ECPI University\\School\\SDC320 Advanced Object-Oriented Programming using C#\\Project\\GoalTrackingApp\\GoalTrackingApp.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\tkdki\\.nuget\\packages\\stub.system.data.sqlite.core.netstandard\\1.0.118\\stub.system.data.sqlite.core.netstandard.1.0.118.nupkg.sha512",
+    "C:\\Users\\tkdki\\.nuget\\packages\\system.data.sqlite.core\\1.0.118\\system.data.sqlite.core.1.0.118.nupkg.sha512"
+  ],
   "logs": []
 }

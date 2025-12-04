@@ -24,6 +24,9 @@ namespace GoalTrackingApp
             this.AchievementID = achievementID;
         }
 
+        //parameterless constructor for data retrieval
+        public AchievementLogModel() { }
+
         //methods
         public override string ToString()
         {

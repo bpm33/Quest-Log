@@ -19,15 +19,15 @@ namespace GoalTrackingApp
     {
         //protected access used for properties to allow derived classes access while keeping them private to external code
         public int GoalID { get; set; }//set by database, primary key
-        protected string Title { get; set;}
-        protected DateTime StartDate { get; set; }
-        protected DateTime EndDate { get; set; }
-        public string Description { get; set; }
+        public string Title { get; set;} = null!;
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string Description { get; set; } = null!;
         //public bool IsActive { get; set; } replaced by GoalStatus
         public GoalStatus Status { get; set; }
 
         //ledger of all progress entries for a goal
-        public List<ProgressEntry> ProgressEntries { get; protected set; }
+        public List<ProgressEntry> ProgressEntries { get; internal set; }
     
         //constructor
         public Goal(string title, string description, DateTime startDate, DateTime endDate)
@@ -40,6 +40,12 @@ namespace GoalTrackingApp
             this.Status = GoalStatus.InProgress;
             this.ProgressEntries = new List<ProgressEntry>();//initialize the composed list
         
+        }
+
+        //parameterless constructor for database loading
+        protected Goal() 
+        {
+            this.ProgressEntries = new List<ProgressEntry>(); 
         }
 
         //abstract method to be implemented by inheriting classes

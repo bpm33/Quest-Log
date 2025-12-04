@@ -13,7 +13,7 @@ namespace GoalTrackingApp
         //properties
         public decimal TargetValue { get; set; }
         public decimal CurrentValue { get; private set; } = 0; //calculated value set to private and initialized to 0 in constructor
-        public string UnitOfMeasure { get; set; }
+        public string UnitOfMeasure { get; set; } = null!;
 
         //constructor
         public QuantitativeGoal(string title, string description, DateTime startDate, DateTime endDate, decimal targetValue, string unitOfMeasure) : base(title, description, startDate, endDate)
@@ -21,6 +21,9 @@ namespace GoalTrackingApp
             this.TargetValue = targetValue;
             this.UnitOfMeasure = unitOfMeasure;
         }
+
+        //parameterless constructor for database loading
+        public QuantitativeGoal() : base() {}
 
         //methods
         public override string CalculateProgress()
