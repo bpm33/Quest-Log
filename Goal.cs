@@ -6,6 +6,7 @@ Class Implementation
 
 Abstract base class that implements the interface
 */
+using System.Text;
 namespace GoalTrackingApp
 {
     //Replaces the IsActive boolean to provide a clearer status for the application logic
@@ -51,16 +52,6 @@ namespace GoalTrackingApp
         //abstract method to be implemented by inheriting classes
         public abstract string CalculateProgress();
 
-        //Add a new progress entry to the goal's ledger
-        public void LogProgress(ProgressEntry entry)
-        {
-            entry.GoalID = this.GoalID; //set goal ID before logging
-            this.ProgressEntries.Add(entry); //add entry to the list
-            CalculateProgress(); //after logging, recalculate and update goal's status
-            AchievementManager.CheckAndUnlock(this, entry); //check for achievements
-            Console.WriteLine($"Trigger progress entry database save [simulated] for Goal ID: {this.GoalID}");
-        }
-
         //implement interface
         public string GenerateSummaryReport(int goalID)
         {
@@ -70,15 +61,43 @@ namespace GoalTrackingApp
         //basic string representation of goal's state for testing
         public override string ToString()
         {
-            return $"--- Goal Details ---\n" +
-                $"Goal ID: {GoalID}\n" +
-                $"Title: {Title}\n" +
-                $"Description: {Description}\n" +
-                $"Start Date: {StartDate}\n" +
-                $"End Date: {EndDate}\n" +
-                $"Status: {Status}\n" +
-                $"Progress: {CalculateProgress()}\n" +
-                $"Progress Entries Logged: {ProgressEntries.Count}";
+            var sb = new StringBuilder();
+            sb.AppendLine("--- Goal Details ---");
+            sb.AppendLine($"Goal ID: {GoalID}");
+            sb.AppendLine($"Title: {Title}");
+            sb.AppendLine($"Description: {Description}");
+            sb.AppendLine($"Start Date: {StartDate.ToShortDateString()}");
+            sb.AppendLine($"End Date: {EndDate.ToShortDateString()}");
+            sb.AppendLine($"Status: {Status}");
+            sb.AppendLine($"Progress: {CalculateProgress()}");
+            
+            sb.AppendLine($"\n--- Progress Log ({ProgressEntries.Count} entries) ---");
+
+            if (ProgressEntries.Any())
+            {
+                // Entries are loaded in descending date order from the repository
+                foreach (var entry in ProgressEntries)
+                {
+                    string valueDisplay = entry.ValueLogged.ToString("G29"); // "G29" removes trailing zeros from decimal
+                    if (this is QuantitativeGoal qGoal)
+                    {
+                        valueDisplay += $" {qGoal.UnitOfMeasure}";
+                    }
+
+                    sb.Append($"  - {entry.DateLogged:yyyy-MM-dd}: {valueDisplay}");
+                    if (!string.IsNullOrWhiteSpace(entry.Notes))
+                    {
+                        sb.Append($" | Notes: {entry.Notes}");
+                    }
+                    sb.AppendLine();
+                }
+            }
+            else
+            {
+                sb.AppendLine("No progress has been logged for this goal yet.");
+            }
+
+            return sb.ToString();
         }
     }
 }

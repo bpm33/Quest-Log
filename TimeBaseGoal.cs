@@ -33,44 +33,100 @@ namespace GoalTrackingApp
         //streak calculation helper method
         private int CalculateCurrentStreak()
         {
-            var loggedDates = ProgressEntries
-            .Select(e => e.DateLogged.Date)
-            .Distinct()
-            .OrderByDescending(d => d)
-            .ToList();
-
-            if (loggedDates.Count == 0)
+            if (!ProgressEntries.Any())
             {
                 return 0;
             }
-            int streak = 0;
-            DateTime checkDate = DateTime.Today;
-            if (RequiredFrequency == FrequencyUnit.Daily)
+
+            var loggedDates = ProgressEntries
+                .Select(e => e.DateLogged.Date)
+                .Distinct()
+                .OrderByDescending(d => d)
+                .ToList();
+
+            int streak = 1;
+            
+            switch (RequiredFrequency)
             {
-                if (!loggedDates.Contains(checkDate))
+                case FrequencyUnit.Daily:
                 {
-                    checkDate = checkDate.AddDays(-1);
+                    var lastDate = loggedDates[0];
+                    for (int i = 1; i < loggedDates.Count; i++)
+                    {
+                        if (loggedDates[i] == lastDate.AddDays(-1))
+                        {
+                            streak++;
+                            lastDate = loggedDates[i];
+                        }
+                        else
+                        {
+                            break; // Streak is broken
+                        }
+                    }
+                    break;
                 }
-                foreach (var date in loggedDates)
+                case FrequencyUnit.Weekly:
                 {
-                    if (date == checkDate)
+                    var loggedWeeks = loggedDates.Select(d => d.AddDays(-(int)d.DayOfWeek)).Distinct().ToList();
+                    var lastWeek = loggedWeeks[0];
+                    for (int i = 1; i < loggedWeeks.Count; i++)
                     {
-                        streak++;
-                        checkDate = checkDate.AddDays(-1);
+                        if (loggedWeeks[i] == lastWeek.AddDays(-7))
+                        {
+                            streak++;
+                            lastWeek = loggedWeeks[i];
+                        }
+                        else
+                        {
+                            break; // Streak is broken
+                        }
                     }
-                    else if (date < checkDate)
+                    break;
+                }
+                case FrequencyUnit.Monthly:
+                {
+                    var loggedMonths = loggedDates.Select(d => new DateTime(d.Year, d.Month, 1)).Distinct().ToList();
+                    var lastMonth = loggedMonths[0];
+                    for (int i = 1; i < loggedMonths.Count; i++)
                     {
-                        break;
+                        if (loggedMonths[i] == lastMonth.AddMonths(-1))
+                        {
+                            streak++;
+                            lastMonth = loggedMonths[i];
+                        }
+                        else
+                        {
+                            break; // Streak is broken
+                        }
                     }
+                    break;
                 }
             }
             return streak;
         }
+
+        private string GetFrequencyUnitString()
+        {
+            return RequiredFrequency switch
+            {
+                FrequencyUnit.Daily => "Day",
+                FrequencyUnit.Weekly => "Week",
+                FrequencyUnit.Monthly => "Month",
+                _ => ""
+            };
+        }
+
         //methods
         public override string CalculateProgress()
         {
             CurrentStreak = CalculateCurrentStreak();
-            return $"{CurrentStreak} Day Streak! (Required Frequency: {RequiredFrequency})";
+
+            // If the goal's end date has passed, mark it as complete.
+            if (DateTime.Today > EndDate && Status == GoalStatus.InProgress)
+            {
+                Status = GoalStatus.Complete;
+            }
+            return $"{CurrentStreak} {GetFrequencyUnitString()} Streak! (Required Frequency: {RequiredFrequency})";
         }
     }
 }

@@ -18,9 +18,9 @@ namespace GoalTrackingApp
         public string Notes { get; set; } = null!;
 
         //constructor
-        public ProgressEntry(decimal valueLogged, string notes = "")
+        public ProgressEntry(decimal valueLogged, string notes = "", DateTime? dateLogged = null)
         {
-            this.DateLogged = DateTime.Now;
+            this.DateLogged = dateLogged ?? DateTime.Now;
             this.ValueLogged = valueLogged;
             this.Notes = notes;
         }

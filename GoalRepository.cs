@@ -202,7 +202,7 @@ namespace GoalTrackingApp
                         
                         // SQLite's REAL type maps to C# double, which we cast to decimal
                         entry.ValueLogged = (decimal)reader.GetDouble(2); 
-                        entry.Notes = reader.GetString(3);
+                        entry.Notes = reader.IsDBNull(3) ? "" : reader.GetString(3);
                         
                         entries.Add(entry);
                     }
@@ -211,13 +211,56 @@ namespace GoalTrackingApp
             return entries;
         }
 
+        // Loads all ProgressEntry records from the database and groups them by GoalID for efficient lookup.
+        private Dictionary<int, List<ProgressEntry>> LoadAllProgressEntriesGroupedByGoal()
+        {
+            var allEntries = new Dictionary<int, List<ProgressEntry>>();
+            string sql = $"SELECT EntryID, GoalID, DateLogged, ValueLogged, Notes FROM {ProgressEntryTable} ORDER BY GoalID, DateLogged DESC";
+
+            using (SQLiteCommand cmd = new SQLiteCommand(sql, _connection))
+            {
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int goalId = reader.GetInt32(1);
+                        if (!allEntries.ContainsKey(goalId))
+                        {
+                            allEntries[goalId] = new List<ProgressEntry>();
+                        }
+
+                        ProgressEntry entry = new ProgressEntry
+                        {
+                            EntryID = reader.GetInt32(0),
+                            GoalID = goalId,
+                            DateLogged = DateTime.Parse(reader.GetString(2)),
+                            ValueLogged = (decimal)reader.GetDouble(3),
+                            Notes = reader.IsDBNull(4) ? "" : reader.GetString(4)
+                        };
+                        allEntries[goalId].Add(entry);
+                    }
+                }
+            }
+            return allEntries;
+        }
+
         // Reads a list of all goals, reconstituting them as the correct derived type
         public List<Goal> GetAllGoals()
         {
             List<Goal> goals = new List<Goal>();
             
-            // Select all base goal data
-            string sql = $"SELECT GoalID, Title, Description, GoalType, Status, StartDate, EndDate FROM {GoalTable}";
+            // 1. Load all progress entries in one go and group them by GoalID to solve the N+1 query problem.
+            var allProgressEntries = LoadAllProgressEntriesGroupedByGoal();
+            
+            // 2. Load all base and derived goal data in a single query using LEFT JOINs.
+            string sql = $@"
+                SELECT 
+                    g.GoalID, g.Title, g.Description, g.GoalType, g.Status, g.StartDate, g.EndDate,
+                    q.TargetValue, q.UnitOfMeasure,
+                    t.RequiredFrequency
+                FROM {GoalTable} g
+                LEFT JOIN {QuantitativeTable} q ON g.GoalID = q.GoalID
+                LEFT JOIN {TimeBasedTable} t ON g.GoalID = t.GoalID";
             
             using (SQLiteCommand cmd = new SQLiteCommand(sql, _connection))
             {
@@ -229,64 +272,43 @@ namespace GoalTrackingApp
                         string? goalType = reader.IsDBNull(3) ? null : reader.GetString(3);
                         Goal? goal = null;
 
-                        // Polymorphic Hydration - Instantiate the correct derived class
+                        // Polymorphic Hydration
                         if (goalType == "QuantitativeGoal")
                         {
-                            QuantitativeGoal qGoal = new QuantitativeGoal();
-                            
-                            // Load Quantitative-specific data
-                            string sqlQuant = $"SELECT TargetValue, UnitOfMeasure FROM {QuantitativeTable} WHERE GoalID = @GoalID";
-                            using (SQLiteCommand qCmd = new SQLiteCommand(sqlQuant, _connection))
+                            var qGoal = new QuantitativeGoal
                             {
-                                qCmd.Parameters.AddWithValue("@GoalID", goalId);
-                                using (SQLiteDataReader qReader = qCmd.ExecuteReader())
-                                {
-                                    if (qReader.Read())
-                                    {
-                                        qGoal.TargetValue = (decimal)qReader.GetDouble(0);
-                                        qGoal.UnitOfMeasure = qReader.GetString(1);
-                                    }
-                                }
-                            }
+                                // Use IsDBNull checks for safety on LEFT JOIN results
+                                TargetValue = reader.IsDBNull(7) ? 0 : (decimal)reader.GetDouble(7),
+                                UnitOfMeasure = reader.IsDBNull(8) ? "" : reader.GetString(8)
+                            };
                             goal = qGoal;
                         }
                         else if (goalType == "TimeBasedGoal")
                         {
-                            TimeBasedGoal tGoal = new TimeBasedGoal(); 
-
-                            // Load TimeBased-specific data
-                            string sqlTime = $"SELECT RequiredFrequency FROM {TimeBasedTable} WHERE GoalID = @GoalID";
-                            using (SQLiteCommand tCmd = new SQLiteCommand(sqlTime, _connection))
+                            var tGoal = new TimeBasedGoal
                             {
-                                tCmd.Parameters.AddWithValue("@GoalID", goalId);
-                                using (SQLiteDataReader tReader = tCmd.ExecuteReader())
-                                {
-                                    if (tReader.Read())
-                                    {
-                                        // Cast the integer from the database back to the C# enum
-                                        tGoal.RequiredFrequency = (FrequencyUnit)tReader.GetInt32(0);
-                                    }
-                                }
-                            }
+                                RequiredFrequency = reader.IsDBNull(9) ? FrequencyUnit.Daily : (FrequencyUnit)reader.GetInt32(9)
+                            };
                             goal = tGoal;
                         }
                         
-                        // Populate all common properties
                         if (goal != null)
                         {
+                            // Populate common properties
                             goal.GoalID = goalId;
                             goal.Title = reader.GetString(1);
                             goal.Description = reader.GetString(2);
                             goal.Status = (GoalStatus)reader.GetInt32(4);
                             goal.StartDate = DateTime.Parse(reader.GetString(5));
                             goal.EndDate = DateTime.Parse(reader.GetString(6));
-                            
-                            // Load Composed Progress Entries
-                            goal.ProgressEntries = LoadProgressEntries(goalId);
-                            
-                            // Call CalculateProgress to update CurrentValue/CurrentStreak based on loaded entries
-                            goal.CalculateProgress();
 
+                            // 3. Assign the pre-loaded progress entries from the dictionary.
+                            if (allProgressEntries.TryGetValue(goalId, out var entries))
+                            {
+                                goal.ProgressEntries = entries;
+                            }
+
+                            goal.CalculateProgress();
                             goals.Add(goal);
                         }
                     }
@@ -457,6 +479,16 @@ namespace GoalTrackingApp
                 // Trigger Achievement Check (Event-Driven Logic)
                 if (updatedGoal != null)
                 {
+                    // If the goal's status changed (e.g., became 'Complete'), persist this change to the DB
+                    // before checking for achievements that depend on database state.
+                    string sqlUpdateStatus = $"UPDATE {GoalTable} SET Status = @Status WHERE GoalID = @GoalID";
+                    using (SQLiteCommand updateCmd = new SQLiteCommand(sqlUpdateStatus, _connection))
+                    {
+                        updateCmd.Parameters.AddWithValue("@Status", (int)updatedGoal.Status);
+                        updateCmd.Parameters.AddWithValue("@GoalID", goalId);
+                        updateCmd.ExecuteNonQuery();
+                    }
+
                     AchievementManager.CheckAndUnlock(updatedGoal, entry);
                 }
             }
@@ -514,62 +546,45 @@ namespace GoalTrackingApp
         // Retrieves a single Goal object by its ID, reconstituting it as the correct derived type.
         public Goal? GetGoalById(int goalId)
         {
-            // Select base goal data with a WHERE clause
-            string sql = $"SELECT GoalID, Title, Description, GoalType, Status, StartDate, EndDate FROM {GoalTable} WHERE GoalID = @GoalID";
             Goal? goal = null;
+            // Use the same efficient LEFT JOIN pattern as GetAllGoals, but for a single ID.
+            string sql = $@"
+                SELECT 
+                    g.GoalID, g.Title, g.Description, g.GoalType, g.Status, g.StartDate, g.EndDate,
+                    q.TargetValue, q.UnitOfMeasure,
+                    t.RequiredFrequency
+                FROM {GoalTable} g
+                LEFT JOIN {QuantitativeTable} q ON g.GoalID = q.GoalID
+                LEFT JOIN {TimeBasedTable} t ON g.GoalID = t.GoalID
+                WHERE g.GoalID = @GoalID";
 
             using (SQLiteCommand cmd = new SQLiteCommand(sql, _connection))
             {
-                cmd.Parameters.AddWithValue("@GoalID", goalId); // Ensure goalId is correctly used in the query
+                cmd.Parameters.AddWithValue("@GoalID", goalId);
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
-                    if (reader.Read()) // Check if a record was found
+                    if (reader.Read())
                     {
                         string? goalType = reader.IsDBNull(3) ? null : reader.GetString(3);
                         
-                        // Instantiate the correct derived class
                         if (goalType == "QuantitativeGoal")
                         {
-                            QuantitativeGoal qGoal = new QuantitativeGoal();
-                            
-                            // Load Quantitative-specific data
-                            string sqlQuant = $"SELECT TargetValue, UnitOfMeasure FROM {QuantitativeTable} WHERE GoalID = @GoalID";
-                            using (SQLiteCommand qCmd = new SQLiteCommand(sqlQuant, _connection))
+                            var qGoal = new QuantitativeGoal
                             {
-                                qCmd.Parameters.AddWithValue("@GoalID", goalId);
-                                using (SQLiteDataReader qReader = qCmd.ExecuteReader())
-                                {
-                                    if (qReader.Read())
-                                    {
-                                        qGoal.TargetValue = (decimal)qReader.GetDouble(0);
-                                        qGoal.UnitOfMeasure = qReader.GetString(1);
-                                    }
-                                }
-                            }
+                                TargetValue = reader.IsDBNull(7) ? 0 : (decimal)reader.GetDouble(7),
+                                UnitOfMeasure = reader.IsDBNull(8) ? "" : reader.GetString(8)
+                            };
                             goal = qGoal;
                         }
                         else if (goalType == "TimeBasedGoal")
                         {
-                            TimeBasedGoal tGoal = new TimeBasedGoal(); 
-
-                            // Load TimeBased-specific data
-                            string sqlTime = $"SELECT RequiredFrequency FROM {TimeBasedTable} WHERE GoalID = @GoalID";
-                            using (SQLiteCommand tCmd = new SQLiteCommand(sqlTime, _connection))
+                            var tGoal = new TimeBasedGoal
                             {
-                                tCmd.Parameters.AddWithValue("@GoalID", goalId);
-                                using (SQLiteDataReader tReader = tCmd.ExecuteReader())
-                                {
-                                    if (tReader.Read())
-                                    {
-                                        // Cast the integer from the database back to the C# enum
-                                        tGoal.RequiredFrequency = (FrequencyUnit)tReader.GetInt32(0);
-                                    }
-                                }
-                            }
+                                RequiredFrequency = reader.IsDBNull(9) ? FrequencyUnit.Daily : (FrequencyUnit)reader.GetInt32(9)
+                            };
                             goal = tGoal;
                         }
                         
-                        // Populate all common properties
                         if (goal != null)
                         {
                             goal.GoalID = goalId;
@@ -579,16 +594,58 @@ namespace GoalTrackingApp
                             goal.StartDate = DateTime.Parse(reader.GetString(5));
                             goal.EndDate = DateTime.Parse(reader.GetString(6));
                             
-                            // Load Composed Progress Entries
                             goal.ProgressEntries = LoadProgressEntries(goalId);
-                            
-                            // Call CalculateProgress to update CurrentValue/CurrentStreak based on loaded entries
                             goal.CalculateProgress();
                         }
                     }
                 }
             }
             return goal; // Returns the fully hydrated goal or null if not found
+        }
+
+
+        // Loads all earned achievement log entries from the database.
+        public List<AchievementLogModel> GetAllAchievementLogs()
+        {
+            List<AchievementLogModel> logs = new List<AchievementLogModel>();
+            string sql = $"SELECT LogID, GoalID, AchievementID, DateEarned FROM {AchievementLogTable}";
+
+            using (SQLiteCommand cmd = new SQLiteCommand(sql, _connection))
+            {
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        AchievementLogModel log = new AchievementLogModel
+                        {
+                            AchievementLogID = reader.GetInt32(0),
+                            GoalID = reader.GetInt32(1),
+                            AchievementID = reader.GetInt32(2),
+                            DateEarned = DateTime.Parse(reader.GetString(3))
+                        };
+                        logs.Add(log);
+                    }
+                }
+            }
+            return logs;
+        }
+
+        // Retrieves a count of all goals marked as 'Complete'.
+        public int GetCompletedGoalCount()
+        {
+            string sql = $"SELECT COUNT(*) FROM {GoalTable} WHERE Status = @Status";
+            using (SQLiteCommand cmd = new SQLiteCommand(sql, _connection))
+            {
+                cmd.Parameters.AddWithValue("@Status", (int)GoalStatus.Complete);
+                
+                // ExecuteScalar is efficient for retrieving a single value
+                object? result = cmd.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                {
+                    return Convert.ToInt32(result);
+                }
+            }
+            return 0;
         }
 
         // Adds a new Achievement Template definition to the database.
@@ -614,5 +671,43 @@ namespace GoalTrackingApp
             }
         }
 
+        // Deletes all data from all tables and resets auto-increment counters. For testing purposes.
+        public void ResetDatabaseForTesting()
+        {
+            Console.WriteLine("\n--- RESETTING DATABASE ---");
+            using (var transaction = _connection.BeginTransaction())
+            {
+                try
+                {
+                    // List of all tables to clear
+                    var tables = new[] 
+                    { 
+                        GoalTable, 
+                        QuantitativeTable, 
+                        TimeBasedTable, 
+                        ProgressEntryTable, 
+                        AchievementLogTable, 
+                        AchievementTemplateTable 
+                    };
+
+                    foreach (var table in tables)
+                    {
+                        // Clear all data from the table
+                        ExecuteNonQuery($"DELETE FROM {table};");
+                        // Reset the auto-increment counter for the table
+                        ExecuteNonQuery($"DELETE FROM sqlite_sequence WHERE name = '{table}';");
+                    }
+
+                    transaction.Commit();
+                    Console.WriteLine("SUCCESS: Database has been cleared and reset.");
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    Console.WriteLine($"ERROR: Failed to reset database. Details: {ex.Message}");
+                    throw;
+                }
+            }
+        }
     }
 }
