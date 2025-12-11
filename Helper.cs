@@ -1,8 +1,7 @@
 /*
 Benjamin Mather
-20251205
-5.2 Course Project
-Refactoring
+Quest Log
+The Goal Tracking App
 
 Static helper class for handling console input and parsing.
 */

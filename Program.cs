@@ -1,14 +1,11 @@
 ﻿/*
 Benjamin Mather
-20251129
-3.8 Course Project
-Class Implementation
+Quest Log
+The Goal Tracking App
 
 Main application class
 */
 using System.Data.SQLite;
-using System.IO;
-using System.Linq;
 
 namespace GoalTrackingApp
 {

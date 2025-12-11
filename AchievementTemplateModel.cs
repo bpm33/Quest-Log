@@ -1,8 +1,7 @@
 /*
 Benjamin Mather
-20251129
-3.8 Course Project
-Class Implementation
+Quest Log
+The Goal Tracking App
 
 Data model representing the static definition of an achievement.
 */
@@ -33,7 +32,7 @@ namespace GoalTrackingApp
         public override string ToString()
         {
             return $"--- Achievement Template Details ---\n" +
-                //$"Achievement ID: {AchievementID}\n" +
+                $"Achievement ID: {AchievementID}\n" +
                 $"Name: {Name}\n" +
                 $"Description: {Description}\n" +
                 $"Unlock Condition: {UnlockCondition}\n" +

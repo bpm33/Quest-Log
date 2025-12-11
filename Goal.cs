@@ -1,20 +1,19 @@
 /*
 Benjamin Mather
-20251129
-3.8 Course Project
-Class Implementation
+Quest Log
+The Goal Tracking App
 
 Abstract base class that implements the interface
 */
 using System.Text;
 namespace GoalTrackingApp
 {
-    //Replaces the IsActive boolean to provide a clearer status for the application logic
+    // Clear status for the application logic
     public enum GoalStatus
     {
         InProgress,
         Complete,
-        Cancelled
+        Cancelled //not used in this version
     }
     public abstract class Goal : IProgressReporter
     {
@@ -24,7 +23,6 @@ namespace GoalTrackingApp
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string Description { get; set; } = null!;
-        //public bool IsActive { get; set; } replaced by GoalStatus
         public GoalStatus Status { get; set; }
 
         //ledger of all progress entries for a goal
@@ -37,7 +35,6 @@ namespace GoalTrackingApp
             this.Description = description;
             this.StartDate = startDate;
             this.EndDate = endDate;
-            //this.IsActive = true; //replaced by GoalStatus
             this.Status = GoalStatus.InProgress;
             this.ProgressEntries = new List<ProgressEntry>();//initialize the composed list
         

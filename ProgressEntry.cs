@@ -1,8 +1,7 @@
 /*
 Benjamin Mather
-20251129
-3.8 Course Project
-Class Implementation
+Quest Log
+The Goal Tracking App
 
 Represents a single progress log entry, used for composition in the Goal class.
 */
@@ -32,8 +31,8 @@ namespace GoalTrackingApp
         public override string ToString()
         {
             return $"--- Progress Entry Details ---\n" +
-                //$"Goal ID: {GoalID}\n" +
-                //$"Entry ID: {EntryID}\n" +
+                $"Goal ID: {GoalID}\n" +
+                $"Entry ID: {EntryID}\n" +
                 $"Date Logged: {DateLogged}\n" +
                 $"Value Logged: {ValueLogged}\n" +
                 $"Notes: {Notes}";

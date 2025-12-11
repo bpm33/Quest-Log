@@ -1,8 +1,7 @@
 /*
 Benjamin Mather
-20251129
-3.8 Course Project
-Class Implementation
+Quest Log
+The Goal Tracking App
 
 Data Model representing a single instance of an achievement being earned.
 */
@@ -31,7 +30,6 @@ namespace GoalTrackingApp
         public override string ToString()
         {
             return $"--- Achievement Log Details ---\n" +
-                //$"Achievement Log ID: {AchievementLogID}\n" +
                 $"Achievement ID: {AchievementID}\n" +
                 $"Goal ID: {GoalID}\n" +
                 $"Date Earned: {DateEarned}";

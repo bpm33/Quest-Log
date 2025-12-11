@@ -1,8 +1,7 @@
 /*
 Benjamin Mather
-20251204
-4.6 Course Project
-Database Implementation
+Quest Log
+The Goal Tracking App
 
 Repository class implementing the data access layer (CRUD) for all Goal-related tables.
 */
@@ -249,10 +248,10 @@ namespace GoalTrackingApp
         {
             List<Goal> goals = new List<Goal>();
             
-            // 1. Load all progress entries in one go and group them by GoalID to solve the N+1 query problem.
+            // Load all progress entries in one go and group them by GoalID to solve the N+1 query problem.
             var allProgressEntries = LoadAllProgressEntriesGroupedByGoal();
             
-            // 2. Load all base and derived goal data in a single query using LEFT JOINs.
+            // Load all base and derived goal data in a single query using LEFT JOINs.
             string sql = $@"
                 SELECT 
                     g.GoalID, g.Title, g.Description, g.GoalType, g.Status, g.StartDate, g.EndDate,
@@ -302,7 +301,7 @@ namespace GoalTrackingApp
                             goal.StartDate = DateTime.Parse(reader.GetString(5));
                             goal.EndDate = DateTime.Parse(reader.GetString(6));
 
-                            // 3. Assign the pre-loaded progress entries from the dictionary.
+                            // Assign the pre-loaded progress entries from the dictionary.
                             if (allProgressEntries.TryGetValue(goalId, out var entries))
                             {
                                 goal.ProgressEntries = entries;
@@ -547,7 +546,7 @@ namespace GoalTrackingApp
         public Goal? GetGoalById(int goalId)
         {
             Goal? goal = null;
-            // Use the same efficient LEFT JOIN pattern as GetAllGoals, but for a single ID.
+            // Use the same LEFT JOIN pattern as GetAllGoals, but for a single ID.
             string sql = $@"
                 SELECT 
                     g.GoalID, g.Title, g.Description, g.GoalType, g.Status, g.StartDate, g.EndDate,
@@ -638,7 +637,6 @@ namespace GoalTrackingApp
             {
                 cmd.Parameters.AddWithValue("@Status", (int)GoalStatus.Complete);
                 
-                // ExecuteScalar is efficient for retrieving a single value
                 object? result = cmd.ExecuteScalar();
                 if (result != null && result != DBNull.Value)
                 {

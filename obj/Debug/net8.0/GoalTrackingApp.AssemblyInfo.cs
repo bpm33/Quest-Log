@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GoalTrackingApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2ef71d5029fbf9cd3439bcaccbad222aabd34282")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a578322e3b6c471706dc3d9114e7f73bc2564e15")]
 [assembly: System.Reflection.AssemblyProductAttribute("GoalTrackingApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GoalTrackingApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

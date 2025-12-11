@@ -1,8 +1,7 @@
 /*
 Benjamin Mather
-20251129
-3.8 Course Project
-Class Implementation
+Quest Log
+The Goal Tracking App
 
 Represents a goal tracked by frequency and consistency (streak count). 
 Inherits from Goal.
