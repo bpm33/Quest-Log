@@ -1,5 +1,5 @@
 ﻿# Goal Tracking C# Console Application (Quest Log)
- [Watch the Screen Recording] https://youtu.be/_UXveoV0jJk
+ [Watch the Video Demonstration] https://youtu.be/_UXveoV0jJk
  
 ## 1. Overview
 
@@ -86,4 +86,5 @@ A `GoalTrackingDB.sqlite` file will be created in the output directory (e.g., `b
 - `AchievementTemplateModel.cs`: A model for defining an achievement's properties and unlock rules.
 - `AchievementLogModel.cs`: A model representing an instance of an earned achievement.
 - `IProgressReporter.cs`: An interface ensuring all goals can generate a summary report.
+
 
