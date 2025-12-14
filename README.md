@@ -87,4 +87,47 @@ A `GoalTrackingDB.sqlite` file will be created in the output directory (e.g., `b
 - `AchievementLogModel.cs`: A model representing an instance of an earned achievement.
 - `IProgressReporter.cs`: An interface ensuring all goals can generate a summary report.
 
+## 6. Project Summary
+
+### Project Description
+
+The Goal Tracking Application is a C# console-based tool designed to help users define, manage, and track progress toward personal goals. It demonstrates advanced object-oriented programming by utilizing polymorphic goal types (Quantitative and Time-Based) and ensures data persistence through a local SQLite database. The project includes a dynamic achievement system that evaluates user progress against specific rules using C# Reflection.
+
+### Project Tasks
+
+- Task 1: Environment Setup
+  - Configured .NET 8 SDK and development environment.
+  - Installed System.Data.SQLite packages for database connectivity.
+- Task 2: Architecture Design
+  - Designed the abstract Goal base class and derived QuantitativeGoal and TimeBasedGoal classes.
+  - Planned the database schema for relational data integrity (Goals, Progress, Achievements).
+- Task 3: Core Implementation
+  - Implemented the GoalRepository using the Repository Pattern to handle CRUD operations.
+  - Built the AchievementManager to handle logic separation.
+- Task 4: Interface Development
+  - Created an interactive console menu loop for user interaction.
+  - Implemented the ConsoleHelper class to separate I/O logic from business logic.
+- Task 5: Refactoring and Polish
+  - Refactored Program.cs to utilize switch expressions and robust error handling.
+  - Conducted end-to-end testing of data persistence and achievement unlocking.
+
+### Project Skills Learned
+
+- Advanced OOP: Practical application of Polymorphism, Inheritance, Composition, and Interfaces.
+- Database Management: Writing raw SQL queries and managing SQLite transactions within C#.
+- Software Architecture: Implementing the Repository Pattern and Separation of Concerns.
+- Advanced C# Features: Utilizing Reflection for dynamic property evaluation and Switch Expressions for cleaner logic.
+- Input Validation: Creating robust helper methods to ensure data integrity from user input.
+
+### Language Used
+
+- C# (.NET 8): Used for core application logic and console interface.
+- SQL: Used for SQLite database schema creation and data manipulation.
+
+### Development Process Used
+
+- Iterative Development: The project started with hardcoded test scripts and evolved into a fully interactive, menu-driven application through successive refactoring cycles.
+
+
+
 
